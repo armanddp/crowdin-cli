@@ -89,6 +89,16 @@ def export_pattern_to_path(path, export_pattern, lang, languages_mapping = nil)
   export_pattern.gsub(/%(#{placeholders.join('|')})%/, pattern)
 end
 
+# This seems to be the internal Crowdin format
+def export_dest_to_zipped_file_name(path, export_pattern, lang)
+  original_path      = File.dirname(path)[1..-1]
+  original_file_name = File.basename(path)
+  file_extension     = File.extname(path)[1..-1]
+  file_name          = File.basename(path, File.extname(path))
+
+  "#{lang['crowdin_code']}/#{original_file_name}"
+end
+
 # @param [String] path relative path to file in Crowdin project
 # @param [String] source basically, is a file['source'] from crowdin.yaml
 # @param [String] translation basically, is a file['translation'] from crowdin.yaml
@@ -675,7 +685,7 @@ command :download do |c|
         dest = file['source'].sub("#{@base_path}", '')
 
         file_translation_languages.each do |lang|
-          zipped_file = export_pattern_to_path(dest, file['translation'], lang)
+          zipped_file = export_dest_to_zipped_file_name(dest, file['translation'], lang)
           zipped_file.sub!(/^\//, '')
           local_file  = export_pattern_to_path(dest, file['translation'], lang, languages_mapping)
           downloadable_files_hash[zipped_file] = local_file
